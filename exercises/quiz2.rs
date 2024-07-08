@@ -22,11 +22,7 @@
 
 // I AM NOT DONE
 
-pub enum Command {
-    Uppercase,
-    Trim,
-    Append(usize),
-}
+pub enum Command {// I AM NOT DONE
 
 mod my_module {
     use super::Command;

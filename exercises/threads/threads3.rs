@@ -3,12 +3,16 @@
 // Execute `rustlings hint threads3` or use the `hint` watch subcommand for a
 // hint.
 
-// I AM NOT DONE
 
-use std::sync::mpsc;
+// threads3.rs
+// Execute `rustlings hint threads3` or use the `hint` watch subcommand for a hint.
+
+use std::sync::{mpsc, Mutex};
 use std::sync::Arc;
 use std::thread;
 use std::time::Duration;
+use std::borrow::Borrow;
+use std::sync::mpsc::Sender;
 
 struct Queue {
     length: u32,
@@ -26,15 +30,22 @@ impl Queue {
     }
 }
 
-fn send_tx(q: Queue, tx: mpsc::Sender<u32>) -> () {
+fn send_tx(q: Queue, tx_: mpsc::Sender<u32>) -> () {
+
     let qc = Arc::new(q);
-    let qc1 = Arc::clone(&qc);
-    let qc2 = Arc::clone(&qc);
+    let qc1 = qc.clone();
+    let qc2 = qc.clone();
+
+    //use Arc and Mutex to let tx can be shared ownership and can edit by Thread
+    //let tx = Arc::new(Mutex::new(tx_.clone()));
+
+    let tx1 = tx_.clone();
+    let tx2 = tx_.clone();
 
     thread::spawn(move || {
         for val in &qc1.first_half {
             println!("sending {:?}", val);
-            tx.send(*val).unwrap();
+            tx1.send(*val).unwrap();
             thread::sleep(Duration::from_secs(1));
         }
     });
@@ -42,7 +53,7 @@ fn send_tx(q: Queue, tx: mpsc::Sender<u32>) -> () {
     thread::spawn(move || {
         for val in &qc2.second_half {
             println!("sending {:?}", val);
-            tx.send(*val).unwrap();
+            tx2.send(*val).unwrap();
             thread::sleep(Duration::from_secs(1));
         }
     });
